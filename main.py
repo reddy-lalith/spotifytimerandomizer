@@ -12,7 +12,7 @@ app.secret_key = 'some_random_secret'  # Change this for production
 # Spotify credentials and other constants
 CLIENT_ID = config.SPOTIPY_CLIENT_ID
 CLIENT_SECRET = config.SPOTIPY_CLIENT_SECRET
-REDIRECT_URI = 'http://localhost:8000/callback'
+REDIRECT_URI = 'https://spotifytime-2242e325dba1.herokuapp.com/callback'
 SCOPE = 'user-modify-playback-state user-read-playback-state user-read-private'
 USERNAME = ''
 
