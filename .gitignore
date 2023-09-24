@@ -1,0 +1,59 @@
+# Python files
+*.pyc
+*.pyo
+*.egg-info/
+__pycache__/
+
+# Virtual environments
+venv/
+*.venv/
+.env/
+
+# IDE - PyCharm, VS Code, etc.
+.idea/
+*.iml
+.vscode/
+
+# Flask instance-specific files
+instance/
+
+# SQLite databases
+*.sqlite
+
+# Log files
+*.log
+
+# Application specific
+config.py  # If you have secrets in a config.py file
+
+# OS-specific
+.DS_Store   # MacOS
+Thumbs.db   # Windows
+desktop.ini # Windows
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Heroku
+heroku_output
+*.log
+
+# Others
+*.swp        # Vim swap files
+*~           # Backup files from various editors
+
+# Environment variables
+.env         # Environment variables (use python-decouple or similar in production)
