@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request, session, url_for
+from flask import Flask, redirect, request, session, url_for, make_response
 from spotipy.oauth2 import SpotifyOAuth
 import requests
 import random
@@ -19,7 +19,7 @@ USERNAME = ''
 
 @app.route('/')
 def index():
-    token = session.get('token')
+    token = request.cookies.get('token')
     if not token:
         return redirect(url_for('login'))
     return '''
@@ -41,13 +41,14 @@ def login():
 def callback():
     sp_oauth = SpotifyOAuth(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, scope=SCOPE)
     token_info = sp_oauth.get_access_token(request.args['code'])
-    session['token'] = token_info['access_token']
-    return redirect(url_for('index'))
+    resp = make_response(redirect(url_for('index')))
+    resp.set_cookie('token', token_info['access_token'], max_age=3600)  # Token usually expires in 1 hour
+    return resp
 
 
 @app.route('/play', methods=['POST'])
 def play():
-    token = session.get('token')
+    token = request.cookies.get('token')
     playlist_id = request.form['playlist_id']
     result = play_random_song_from_playlist(token, playlist_id)
     return result
