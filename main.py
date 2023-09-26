@@ -7,7 +7,7 @@ import config  # Import the configuration file
 
 # Flask app setup
 app = Flask(__name__)
-app.secret_key = 'some_random_secret'  # Change this for production
+app.secret_key = os.urandom(24)  # Generates a random secret key
 
 # Spotify credentials and other constants
 CLIENT_ID = config.SPOTIPY_CLIENT_ID
@@ -19,8 +19,8 @@ USERNAME = ''
 
 @app.route('/')
 def index():
-    token = request.cookies.get('token')
-    if not token:
+    token = session.get('token')
+    if not token and request.endpoint != 'login':
         return redirect(url_for('login'))
     return '''
     <form action="/play" method="post">
@@ -35,6 +35,7 @@ def login():
     sp_oauth = SpotifyOAuth(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, scope=SCOPE)
     auth_url = sp_oauth.get_authorize_url()
     return redirect(auth_url)
+
 
 
 @app.route('/callback')
