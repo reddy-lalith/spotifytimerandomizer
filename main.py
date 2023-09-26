@@ -42,13 +42,13 @@ def callback():
     sp_oauth = SpotifyOAuth(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, scope=SCOPE)
     token_info = sp_oauth.get_access_token(request.args['code'])
     resp = make_response(redirect(url_for('index')))
-    resp.set_cookie('token', token_info['access_token'], max_age=3600)  # Token usually expires in 1 hour
+    session['token'] = token_info['access_token']
     return resp
 
 
 @app.route('/play', methods=['POST'])
 def play():
-    token = request.cookies.get('token')
+    token = session.get('token')
     playlist_id = request.form['playlist_id']
     result = play_random_song_from_playlist(token, playlist_id)
     return result
