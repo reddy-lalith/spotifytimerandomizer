@@ -22,10 +22,32 @@ def index():
     if not token and request.endpoint != 'login':
         return redirect(url_for('login'))
     return '''
-    <form action="/play" method="post">
-        Playlist ID: <input type="text" name="playlist_id">
+    <form action="/play" method="post" id="playlistForm">
+        Playlist ID: <input type="text" name="playlist_id" id="playlistId">
         <input type="submit" value="Play Random Song">
+        <button type="button" id="shuffleButton">Shuffle</button>
     </form>
+    <div id="message"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $("#shuffleButton").click(function() {
+            var playlistId = $("#playlistId").val();
+            $.post("/play", { playlist_id: playlistId }, function(data) {
+                $("#message").html(data);
+            });
+        });
+
+        $("#playlistForm").submit(function(e) {
+            e.preventDefault();
+            var playlistId = $("#playlistId").val();
+            $.post("/play", { playlist_id: playlistId }, function(data) {
+                $("#message").html(data);
+            });
+        });
+    });
+    </script>
     '''
 
 @app.route('/login')
@@ -56,10 +78,6 @@ def play_random_song_from_playlist(token, playlist_id):
 
     # Fetch playlist tracks
     response = requests.get(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers)
-
-    if response.status_code != 200:
-        return f"Error fetching playlist: {response.json().get('error', {}).get('message', 'Unknown error')}"
-
     playlist_data = response.json()
 
     items = playlist_data.get('items', [])
@@ -84,7 +102,7 @@ def play_random_song_from_playlist(token, playlist_id):
     if response.status_code == 204:
         return f"Playing {track['track']['name']} from a random position."
     else:
-        return f"Error starting playback: {response.json().get('error', {}).get('message', 'Unknown error')}"
+        return f"Error starting playback: {response.text}"
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8000))
