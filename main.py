@@ -89,6 +89,23 @@ def play_random_song_from_playlist(token, playlist_id):
         return f"Error starting playback: {response.text}"
 
 
+def play_random_song_from_playlist(token, playlist_id):
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    # Fetch playlist tracks
+    response = requests.get(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers)
+
+    if response.status_code != 200:
+        return f"Error fetching playlist: {response.json().get('error', {}).get('message', 'Unknown error')}"
+
+    playlist_data = response.json()
+
+    items = playlist_data.get('items', [])
+    if not items:
+        return "No songs found in the playlist."
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8000))
     app.run(host='0.0.0.0', port=port)
