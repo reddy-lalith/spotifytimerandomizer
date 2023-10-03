@@ -16,7 +16,6 @@ REDIRECT_URI = 'https://www.spotifytime.com/callback'
 SCOPE = 'user-modify-playback-state user-read-playback-state user-read-private'
 USERNAME = ''
 
-
 @app.route('/')
 def index():
     token = session.get('token')
@@ -29,14 +28,11 @@ def index():
     </form>
     '''
 
-
 @app.route('/login')
 def login():
     sp_oauth = SpotifyOAuth(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, scope=SCOPE)
     auth_url = sp_oauth.get_authorize_url()
     return redirect(auth_url)
-
-
 
 @app.route('/callback')
 def callback():
@@ -46,14 +42,12 @@ def callback():
     session['token'] = token_info['access_token']
     return resp
 
-
 @app.route('/play', methods=['POST'])
 def play():
     token = session.get('token')
     playlist_id = request.form['playlist_id']
     result = play_random_song_from_playlist(token, playlist_id)
     return result
-
 
 def play_random_song_from_playlist(token, playlist_id):
     headers = {
@@ -62,6 +56,10 @@ def play_random_song_from_playlist(token, playlist_id):
 
     # Fetch playlist tracks
     response = requests.get(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers)
+
+    if response.status_code != 200:
+        return f"Error fetching playlist: {response.json().get('error', {}).get('message', 'Unknown error')}"
+
     playlist_data = response.json()
 
     items = playlist_data.get('items', [])
@@ -86,25 +84,7 @@ def play_random_song_from_playlist(token, playlist_id):
     if response.status_code == 204:
         return f"Playing {track['track']['name']} from a random position."
     else:
-        return f"Error starting playback: {response.text}"
-
-
-def play_random_song_from_playlist(token, playlist_id):
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
-
-    # Fetch playlist tracks
-    response = requests.get(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers)
-
-    if response.status_code != 200:
-        return f"Error fetching playlist: {response.json().get('error', {}).get('message', 'Unknown error')}"
-
-    playlist_data = response.json()
-
-    items = playlist_data.get('items', [])
-    if not items:
-        return "No songs found in the playlist."
+        return f"Error starting playback: {response.json().get('error', {}).get('message', 'Unknown error')}"
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8000))
