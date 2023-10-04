@@ -23,7 +23,7 @@ def index():
         return redirect(url_for('login'))
     return '''
     <form action="/play" method="post" id="playlistForm">
-        Playlist Link: <input type="text" name="playlist_link" id="playlistLink">
+        Playlist ID: <input type="text" name="playlist_id" id="playlistId">
         <input type="submit" value="Play Random Song">
         <button type="button" id="shuffleButton">Shuffle</button>
     </form>
@@ -33,16 +33,16 @@ def index():
     <script>
     $(document).ready(function() {
         $("#shuffleButton").click(function() {
-            var playlistLink = $("#playlistLink").val();
-            $.post("/play", { playlist_link: playlistLink }, function(data) {
+            var playlistId = $("#playlistId").val();
+            $.post("/play", { playlist_id: playlistId }, function(data) {
                 $("#message").html(data);
             });
         });
 
         $("#playlistForm").submit(function(e) {
             e.preventDefault();
-            var playlistLink = $("#playlistLink").val();
-            $.post("/play", { playlist_link: playlistLink }, function(data) {
+            var playlistId = $("#playlistId").val();
+            $.post("/play", { playlist_id: playlistId }, function(data) {
                 $("#message").html(data);
             });
         });
@@ -67,19 +67,9 @@ def callback():
 @app.route('/play', methods=['POST'])
 def play():
     token = session.get('token')
-    playlist_link = request.form['playlist_link']
-    playlist_id = extract_playlist_id_from_link(playlist_link)
+    playlist_id = request.form['playlist_id']
     result = play_random_song_from_playlist(token, playlist_id)
     return result
-
-def extract_playlist_id_from_link(link):
-    # Extracts the playlist ID from a Spotify playlist link
-    parts = link.split('/')
-    if "playlist" in parts:
-        index = parts.index("playlist")
-        if index + 1 < len(parts):
-            return parts[index + 1]
-    return None
 
 def play_random_song_from_playlist(token, playlist_id):
     headers = {
